@@ -11,10 +11,12 @@
 </head>
 <body class="font-sans text-gray-800 bg-white scroll-smooth">
 
+<img src="{{ asset('images/bg.png') }}" alt="Background" class="background-image">
+
   <!-- Modern Navbar -->
 <nav class="fixed top-0 left-0 w-full backdrop-blur-lg bg-white/60 border-b border-white/30 shadow-md z-50">
   <div class="max-w-6xl mx-auto px-6 flex justify-between items-center py-4">
-    
+
     <!-- Logo -->
     <a href="#login" class="text-2xl font-extrabold text-black-600 tracking-wide">Asyne</a>
 
@@ -43,7 +45,7 @@
 <!-- Modern Login Section -->
 <section id="login" class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-200 via-dark blue=-200 to-light blue-200">
   <div class="backdrop-blur-lg bg-white/70 shadow-2xl rounded-3xl p-10 w-full max-w-md border border-gray-100" data-aos="zoom-in">
-    
+
     <!-- Title -->
     <h2 class="text-4xl font-extrabold text-center text-gray-800 mb-6 tracking-tight">Welcome Back</h2>
     <p class="text-center text-gray-600 mb-8">Sign in to continue</p>
