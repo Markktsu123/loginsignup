@@ -15,7 +15,7 @@ use Illuminate\View\View;
 class RegisteredUserController extends Controller
 {
     /**
-     * Display the registration view.
+     * Show the registration view.
      */
     public function create(): View
     {
@@ -23,28 +23,30 @@ class RegisteredUserController extends Controller
     }
 
     /**
-     * Handle an incoming registration request.
-     *
-     * @throws \Illuminate\Validation\ValidationException
+     * Handle registration request.
      */
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'fullName' => ['required', 'string', 'max:255'],
+            'email'    => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
+        // 🚀 UUID is auto-generated in User::boot(), so we don’t touch it here
         $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
+            'fullName' => $request->fullName,
+            'email'    => $request->email,
             'password' => Hash::make($request->password),
+            'role'     => 'user',   // default role
+            'status'   => 'active', // default status
         ]);
 
         event(new Registered($user));
 
+        // Auto login after registration
         Auth::login($user);
 
-        return redirect(route('dashboard', absolute: false));
+        return redirect()->route('dashboard')->with('success', 'Welcome aboard, ' . $user->fullName . ' 🎉');
     }
 }

@@ -37,34 +37,46 @@
       <p class="text-center text-gray-600 mb-6 text-sm">Fill in your details to get started 🚀</p>
       <hr class="border-gray-300 mb-6">
 
-      <!-- Success Message -->
-      <div id="successMessage" class="hidden mb-4 p-3 rounded-lg bg-green-100 text-green-700 text-sm font-medium text-center">
-        🎉 Registration successful! You can now log in.
-      </div>
+      <!-- Laravel Errors -->
+      @if ($errors->any())
+        <div class="mb-4 p-3 rounded-lg bg-red-100 text-red-700 text-sm font-medium">
+          <ul class="list-disc pl-4">
+            @foreach ($errors->all() as $error)
+              <li>{{ $error }}</li>
+            @endforeach
+          </ul>
+        </div>
+      @endif
 
       <form id="signupForm" method="POST" action="{{ route('register') }}" class="space-y-4">
         @csrf
 
         <!-- Full Name -->
         <div>
-          <label for="name" class="block text-sm font-medium text-gray-700">Full Name</label>
-          <input id="name" type="text" name="name" required
+          <label for="fullName" class="block text-sm font-medium text-gray-700">Full Name</label>
+          <input id="fullName" type="text" name="fullName" value="{{ old('fullName') }}" autocomplete="name" required
             class="mt-1 w-full px-4 py-2 bg-gray-50 border border-gray-300 text-gray-900 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none">
+          @error('fullName')
+            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+          @enderror
         </div>
 
         <!-- Email -->
         <div>
           <label for="email" class="block text-sm font-medium text-gray-700">Email Address</label>
-          <input id="email" type="email" name="email" required
+          <input id="email" type="email" name="email" value="{{ old('email') }}" autocomplete="email" required
             class="mt-1 w-full px-4 py-2 bg-gray-50 border border-gray-300 text-gray-900 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none">
           <p id="emailError" class="text-red-500 text-sm mt-1 hidden">Please enter a valid email address.</p>
+          @error('email')
+            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+          @enderror
         </div>
 
         <!-- Password -->
         <div>
           <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
           <div class="relative">
-            <input id="password" type="password" name="password" required
+            <input id="password" type="password" name="password" autocomplete="new-password" required
               class="mt-1 w-full px-4 py-2 bg-gray-50 border border-gray-300 text-gray-900 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none pr-10">
             <button type="button" onclick="togglePassword('password', this)" 
               class="absolute inset-y-0 right-2 flex items-center text-gray-600 hover:text-black">
@@ -74,13 +86,16 @@
           <p id="passwordError" class="text-red-500 text-sm mt-1 hidden">
             Password must be at least 8 characters, include a number and a special character.
           </p>
+          @error('password')
+            <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+          @enderror
         </div>
 
         <!-- Confirm Password -->
         <div>
           <label for="password_confirmation" class="block text-sm font-medium text-gray-700">Confirm Password</label>
           <div class="relative">
-            <input id="password_confirmation" type="password" name="password_confirmation" required
+            <input id="password_confirmation" type="password" name="password_confirmation" autocomplete="new-password" required
               class="mt-1 w-full px-4 py-2 bg-gray-50 border border-gray-300 text-gray-900 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none pr-10">
             <button type="button" onclick="togglePassword('password_confirmation', this)" 
               class="absolute inset-y-0 right-2 flex items-center text-gray-600 hover:text-black">
@@ -110,7 +125,6 @@
   <script>
     AOS.init({ duration: 800, once: true });
 
-    // Toggle Show/Hide Password
     function togglePassword(id, btn) {
       const input = document.getElementById(id);
       const icon = btn.querySelector("i");
@@ -125,10 +139,8 @@
       feather.replace();
     }
 
-    // Validation + Success Confirmation
+    // Validation + allow submit if valid
     document.getElementById("signupForm").addEventListener("submit", function (e) {
-      e.preventDefault(); // prevent actual submission for demo
-
       let valid = true;
 
       // Email validation
@@ -163,22 +175,11 @@
         confirmError.classList.add("hidden");
       }
 
-      if (valid) {
-        // Show success message
-        const successMessage = document.getElementById("successMessage");
-        successMessage.classList.remove("hidden");
-
-        // Clear all input fields
-        document.getElementById("signupForm").reset();
-
-        // Hide success after 3s
-        setTimeout(() => {
-          successMessage.classList.add("hidden");
-        }, 3000);
+      if (!valid) {
+        e.preventDefault(); // block submission if invalid
       }
     });
 
-    // Initialize feather icons
     feather.replace();
   </script>
 
