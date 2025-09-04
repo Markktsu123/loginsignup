@@ -20,13 +20,13 @@
 
   <!-- Signup Section -->
   <section class="min-h-screen flex flex-col md:flex-row items-center justify-center p-6 relative z-10">
-    
+
     <!-- Left Side -->
     <div class="hidden md:flex flex-col items-center justify-center w-1/2 space-y-6 text-center p-10" data-aos="fade-right">
       <img src="/images/logo.png" alt="ASyne Logo" class="w-28 h-28 mb-4">
       <h1 class="text-4xl font-extrabold text-gray-800">Welcome to <span class="text-blue-600">ASyne</span></h1>
       <p class="text-gray-700 text-lg max-w-md">
-        Bridging the gap between the deaf and hearing communities.  
+        Bridging the gap between the deaf and hearing communities.
         Join us in making communication seamless, accessible, and inclusive.
       </p>
     </div>
@@ -78,7 +78,7 @@
           <div class="relative">
             <input id="password" type="password" name="password" autocomplete="new-password" required
               class="mt-1 w-full px-4 py-2 bg-gray-50 border border-gray-300 text-gray-900 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none pr-10">
-            <button type="button" onclick="togglePassword('password', this)" 
+            <button type="button" onclick="togglePassword('password', this)"
               class="absolute inset-y-0 right-2 flex items-center text-gray-600 hover:text-black">
               <i data-feather="eye"></i>
             </button>
@@ -97,7 +97,7 @@
           <div class="relative">
             <input id="password_confirmation" type="password" name="password_confirmation" autocomplete="new-password" required
               class="mt-1 w-full px-4 py-2 bg-gray-50 border border-gray-300 text-gray-900 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none pr-10">
-            <button type="button" onclick="togglePassword('password_confirmation', this)" 
+            <button type="button" onclick="togglePassword('password_confirmation', this)"
               class="absolute inset-y-0 right-2 flex items-center text-gray-600 hover:text-black">
               <i data-feather="eye"></i>
             </button>
