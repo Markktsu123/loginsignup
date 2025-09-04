@@ -18,9 +18,12 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        'name',
+        'userid',
+        'fullName',
         'email',
         'password',
+        'role',
+        'status',
     ];
 
     /**
@@ -43,6 +46,19 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'createdAt' => 'datetime',
+            'updatedAt' => 'datetime',
         ];
+    }
+
+    /**
+     * Interact with the user's first name.
+     */
+    protected function fullName(): Attribute
+    {
+        return Attribute::make(
+            get: fn (string $value) => ucwords($value),
+            set: fn (string $value) => strtolower($value),
+        );
     }
 }

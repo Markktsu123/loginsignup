@@ -12,6 +12,7 @@
 <body class="font-sans text-gray-800 bg-white scroll-smooth">
 
 <img src="{{ asset('images/bg.png') }}" alt="Background" class="background-image">
+<img src="{{ asset('images/bg.png') }}" alt="Background" class="background-image" style="transform: scale(-1, -1);">
 
   <!-- Modern Navbar -->
 <nav class="fixed top-0 left-0 w-full backdrop-blur-lg bg-white/60 border-b border-white/30 shadow-md z-50">
@@ -87,6 +88,19 @@
         class="w-full py-3 px-4 bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-semibold rounded-xl shadow-md hover:shadow-lg hover:scale-[1.02] transition-all duration-200">
         Sign In
       </button>
+
+      <!-- Error Messages -->
+        @if ($errors->any())
+            <div class="mb-4 p-3 rounded-lg bg-red-100 text-red-700 text-sm font-medium text-center">
+                {{ $errors->first() }}
+            </div>
+        @endif
+
+        @if (session('status'))
+            <div class="mb-4 p-3 rounded-lg bg-green-100 text-green-700 text-sm font-medium text-center">
+                {{ session('status') }}
+            </div>
+        @endif
     </form>
 
     <!-- Signup Button -->
@@ -97,10 +111,9 @@
         Create Account
       </a>
     </div>
+
   </div>
 </section>
-
-
 
   <!-- About Section -->
 <section id="about" class="min-h-screen bg-blue-100 px-6 py-20 flex flex-col items-center justify-center">
