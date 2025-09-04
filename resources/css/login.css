@@ -1,0 +1,12 @@
+/* Background Images */
+.background-image {
+  position: absolute;
+  width: 100%;
+  height: auto;
+  top: 0;
+  left: 0;
+  z-index: -1;
+}
+.background-image.flipped {
+  transform: scale(-1, -1);
+}

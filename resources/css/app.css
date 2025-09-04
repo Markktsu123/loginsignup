@@ -1,14 +1,260 @@
+/* resources/css/app.css */
+
+/* Tailwind entrypoints */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* -------------------------------
+   Custom stylesheet (no @apply for group/peer)
+   ------------------------------- */
+
+/* Global */
+body {
+  @apply font-sans text-gray-800 bg-white scroll-smooth;
+}
+
+/* Background images (two copies) */
 .background-image {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit:auto;
-    z-index: -1;
-    opacity: 0.9;
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  z-index: -10;
+}
+
+/* If you prefer to flip the second image, add the class "flipped" to it */
+.background-image.flipped {
+  transform: scale(-1, -1);
+}
+
+/* -------------------------------
+   NAVBAR
+   ------------------------------- */
+.navbar {
+  @apply fixed top-0 left-0 w-full backdrop-blur-lg bg-white/60 border-b border-white/30 shadow-md z-50;
+}
+
+/* container inside navbar */
+.navbar-container {
+  @apply max-w-6xl mx-auto px-6 flex justify-between items-center py-4;
+}
+
+/* logo */
+.navbar-logo {
+  @apply text-2xl font-extrabold tracking-wide text-black;
+}
+
+/* nav links: use .nav-links on the wrapper element in HTML */
+.nav-links a {
+  @apply text-gray-700 font-medium transition;
+  position: relative; /* anchor for underline span */
+}
+
+/* underline span inside link */
+.nav-links a span {
+  position: absolute;
+  left: 0;
+  bottom: -0.25rem; /* same as -bottom-1 */
+  width: 0;
+  height: 2px;
+  background-color: rgb(79 70 229); /* indigo-600 fallback */
+  transition: width .25s ease;
+}
+
+/* color on hover and reveal underline */
+.nav-links a:hover {
+  color: rgb(79 70 229); /* indigo-600 */
+}
+.nav-links a:hover span {
+  width: 100%;
+}
+
+/* -------------------------------
+   LOGIN SECTION / CARD
+   ------------------------------- */
+.login-section {
+  @apply min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-200 via-blue-200 to-blue-200;
+}
+
+.login-card {
+  @apply backdrop-blur-lg bg-white/70 shadow-2xl rounded-3xl p-10 w-full max-w-md border border-gray-100;
+}
+
+.login-card h2 {
+  @apply text-4xl font-extrabold text-center text-gray-800 mb-6 tracking-tight;
+}
+.login-card p {
+  @apply text-center text-gray-600 mb-8;
+}
+
+/* Inputs — use class "input-field" on the inputs and "input-label" on their labels */
+.input-field {
+  @apply w-full px-4 py-3 rounded-xl border border-gray-300 text-gray-900 bg-transparent focus:outline-none;
+}
+
+/* We avoid applying 'peer' — floating label implemented via CSS selectors */
+.input-label {
+  position: absolute;
+  left: 1rem;              /* left-4 */
+  top: 0.75rem;            /* visible inside the input */
+  font-size: 0.875rem;     /* text-sm */
+  color: #4b5563;          /* gray-600 */
+  background-color: rgba(255,255,255,0.7);
+  padding: 0 0.25rem;
+  transform-origin: left center;
+  transition: all .18s ease;
+  pointer-events: none;
+}
+
+/* When the input still shows the placeholder, keep label inside */
+.input-field::placeholder { color: transparent; }
+
+/* If the input has placeholder shown (i.e., empty), label stays larger and lower */
+.input-field:placeholder-shown + .input-label {
+  top: 0.75rem;            /* down */
+  font-size: 1rem;         /* text-base visually */
+  color: #9ca3af;          /* lighter gray */
+}
+
+/* When input is focused OR not empty, float the label up and shrink */
+.input-field:focus + .input-label,
+.input-field:not(:placeholder-shown) + .input-label {
+  top: -0.625rem;          /* -top-2.5 */
+  font-size: 0.875rem;     /* smaller */
+  color: #2563eb;          /* blue-600 equivalent */
+}
+
+/* Add focus ring to input */
+.input-field:focus {
+  box-shadow: 0 0 0 4px rgba(59,130,246,0.12); /* mimic focus:ring-2 focus:ring-blue-500 */
+  border-color: rgba(59,130,246,1);
+}
+
+/* Checkbox / remember me */
+.checkbox-input {
+  @apply h-4 w-4 border-gray-300 rounded;
+}
+
+/* Focus ring for checkbox */
+.checkbox-input:focus {
+  outline: 2px solid rgba(59,130,246,0.12);
+}
+
+/* Login button */
+.login-button {
+  @apply w-full py-3 px-4 text-white font-semibold rounded-xl shadow-md transition-all duration-200;
+  background-image: linear-gradient(to right, #3b82f6, #6366f1); /* from-blue-500 to-indigo-500 */
+  border: none;
+}
+
+/* hover effects implemented via :hover (avoid hover: in @apply) */
+.login-button:hover {
+  box-shadow: 0 12px 24px rgba(99,102,241,0.12);
+  transform: scale(1.02);
+}
+
+/* Signup secondary button */
+.signup-button {
+  @apply inline-block px-6 py-2 rounded-xl border font-semibold transition;
+  border-color: #3b82f6; /* blue-500 */
+  color: #1d4ed8; /* blue-700 for contrast */
+}
+.signup-button:hover {
+  background-color: rgba(59,130,246,0.06);
+}
+
+/* Error / status boxes */
+.alert-error {
+  @apply mb-4 p-3 rounded-lg bg-red-100 text-red-700 text-sm font-medium text-center;
+}
+.alert-success {
+  @apply mb-4 p-3 rounded-lg bg-green-100 text-green-700 text-sm font-medium text-center;
+}
+
+/* -------------------------------
+   ABOUT / FEATURE CARDS
+   ------------------------------- */
+.about-section {
+  @apply min-h-screen bg-blue-100 px-6 py-20 flex flex-col items-center justify-center;
+}
+.about-top {
+  @apply grid md:grid-cols-2 gap-10 items-center mb-16;
+}
+.about-title {
+  @apply text-xl md:text-2xl text-gray-800 mb-4;
+}
+.about-highlight {
+  @apply font-bold text-gray-900;
+}
+.about-subtitle {
+  @apply text-2xl md:text-3xl font-medium text-gray-900 leading-snug italic;
+}
+
+/* Feature cards */
+.feature-card {
+  @apply bg-white rounded-xl p-10 flex flex-col items-center justify-center transition;
+  box-shadow: 0 6px 18px rgba(15,23,42,0.06); /* soft default shadow */
+}
+.feature-card:hover {
+  box-shadow: 0 20px 50px rgba(15,23,42,0.12);
+}
+.feature-card img {
+  width: 2.5rem; height: 2.5rem; margin-bottom: 1rem; /* w-10 h-10 mb-4 */
+}
+.feature-card p {
+  @apply text-gray-700 text-center text-sm;
+}
+
+/* -------------------------------
+   FAQS
+   ------------------------------- */
+.faqs-section {
+  @apply min-h-screen px-6 py-20 bg-white;
+}
+.faqs-title {
+  @apply text-3xl font-bold mb-12 text-center text-gray-900;
+}
+.faq-item {
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+.faq-item img {
+  width: 7rem; height: 7rem; border-radius: .5rem; box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+}
+.faq-item h3 {
+  @apply font-semibold text-lg;
+}
+.faq-item p {
+  @apply text-gray-700 text-sm mt-2;
+}
+
+/* -------------------------------
+   FOOTER
+   ------------------------------- */
+.footer {
+  @apply bg-gray-900 text-gray-300 py-10;
+}
+.footer h3, .footer h4 {
+  @apply text-white;
+}
+.footer a:hover {
+  color: #60a5fa; /* blue-400 */
+}
+.footer-contact p {
+  @apply flex items-center space-x-2;
+}
+.footer-bottom {
+  @apply text-center text-sm text-gray-500 mt-8;
+}
+
+/* -------------------------------
+   Responsive tweaks (examples)
+   ------------------------------- */
+@media (min-width: 768px) {
+  .nav-links { @apply flex space-x-8; }
+  .feature-card img { width: 2.5rem; height: 2.5rem; }
 }
