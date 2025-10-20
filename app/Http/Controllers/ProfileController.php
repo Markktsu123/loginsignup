@@ -55,10 +55,37 @@ class ProfileController extends Controller
 
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        $request->user()->fill($request->validated());
-        $request->user()->save();
-
-        return Redirect::route('profile.edit')->with('status', 'Profile updated successfully.');
+        $user = $request->user();
+        $validated = $request->validated();
+        
+        // Check which fields have changed
+        $nameChanged = $user->fullName !== $validated['name'];
+        $emailChanged = $user->email !== $validated['email'];
+        
+        // Update only the fields that have changed
+        if ($nameChanged && $emailChanged) {
+            // Both fields changed
+            $user->fullName = $validated['name'];
+            $user->email = $validated['email'];
+            $user->save();
+            
+            return Redirect::route('profile.edit')->with('profile-updated', 'Profile updated successfully.');
+        } elseif ($nameChanged) {
+            // Only name changed
+            $user->fullName = $validated['name'];
+            $user->save();
+            
+            return Redirect::route('profile.edit')->with('profile-updated', 'Name updated successfully.');
+        } elseif ($emailChanged) {
+            // Only email changed
+            $user->email = $validated['email'];
+            $user->save();
+            
+            return Redirect::route('profile.edit')->with('profile-updated', 'Email updated successfully.');
+        } else {
+            // No changes made
+            return Redirect::route('profile.edit')->with('profile-updated', 'No changes were made.');
+        }
     }
 
     public function destroy(Request $request): RedirectResponse

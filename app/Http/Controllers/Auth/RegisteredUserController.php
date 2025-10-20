@@ -29,9 +29,26 @@ class RegisteredUserController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
-            'fullName' => ['required', 'string', 'max:255'],
-            'email'    => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email'],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'fullName' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/', 'min:2'],
+            'email'    => [
+                'required', 
+                'string', 
+                'lowercase', 
+                'email', 
+                'max:255', 
+                'unique:users,email',
+                'regex:/^[a-zA-Z0-9._%+-]+@(gmail\.com|outlook\.com|yahoo\.com)$/'
+            ],
+            'password' => [
+                'required', 
+                'confirmed',
+                'min:8',
+                'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#^()_\-+=\[\]{}|\\:;"\'<>,.\/])[A-Za-z\d@$!%*?&#^()_\-+=\[\]{}|\\:;"\'<>,.\/]{8,}$/'
+            ],
+        ], [
+            'fullName.regex' => 'Name should only contain letters and spaces',
+            'email.regex' => 'Email must be from gmail.com, outlook.com, or yahoo.com',
+            'password.regex' => 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character',
         ]);
 
         // 🚀 UUID is auto-generated in User::boot(), so we don’t touch it here
@@ -45,9 +62,7 @@ class RegisteredUserController extends Controller
 
         event(new Registered($user));
 
-        // Auto login after registration
-        Auth::login($user);
-
-        return redirect()->route('dashboard')->with('success', 'Welcome aboard, ' . $user->fullName . ' 🎉');
+        // Redirect to login page with success message
+        return redirect()->route('login')->with('success', 'Account created successfully! Please log in to continue.');
     }
 }

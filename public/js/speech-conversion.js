@@ -42,31 +42,7 @@ document.querySelectorAll('.modal').forEach(modal => {
     });
 });
 
-// Theme toggle functionality
-const themeToggle = document.getElementById('themeToggle');
-const themeIcon = document.getElementById('themeIcon');
-
-themeToggle.addEventListener('click', function() {
-    document.body.classList.toggle('light-mode');
-    if (document.body.classList.contains('light-mode')) {
-        themeIcon.classList.remove('fa-moon');
-        themeIcon.classList.add('fa-sun');
-        localStorage.setItem('theme', 'light');
-        showToast('Light mode activated', 'success');
-    } else {
-        themeIcon.classList.remove('fa-sun');
-        themeIcon.classList.add('fa-moon');
-        localStorage.setItem('theme', 'dark');
-        showToast('Dark mode activated', 'success');
-    }
-});
-
-// Check for saved theme preference
-if (localStorage.getItem('theme') === 'light') {
-    document.body.classList.add('light-mode');
-    themeIcon.classList.remove('fa-moon');
-    themeIcon.classList.add('fa-sun');
-}
+// Theme toggle functionality removed - using light theme by default
 
 // Back button functionality with fade animation
 document.getElementById('backButton').addEventListener('click', function(e) {
@@ -77,7 +53,7 @@ document.getElementById('backButton').addEventListener('click', function(e) {
 
     // Wait for animation to complete before redirecting
     setTimeout(function() {
-        window.location.href = 'dashboard';
+        window.location.href = '/dashboard';
     }, 500);
 });
 

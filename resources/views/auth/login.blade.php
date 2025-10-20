@@ -31,36 +31,81 @@
 </nav>
 
 <!-- Modern Login Section -->
-<section id="login" class="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-200 via-blue-100 to-indigo-100">
+<section id="login" class="relative h-screen flex items-center justify-center bg-gradient-to-br from-blue-200 via-blue-100 to-indigo-100 p-4 sm:p-6 overflow-hidden">
   
   <!-- Background Image Behind Form -->
   <img src="{{ asset('images/bg.png') }}" alt="Background" class="absolute inset-0 w-full h-full object-cover opacity-20 z-0">
   <img src="{{ asset('images/bg.png') }}" alt="Background Flipped" class="absolute inset-0 w-full h-full object-cover opacity-20 scale-x-[-1] scale-y-[-1] z-0">
 
   <!-- Login Form -->
-  <div class="relative z-10 backdrop-blur-2xl bg-white/70 shadow-2xl rounded-3xl p-10 w-full max-w-md border border-gray-200" data-aos="zoom-in">
+  <div class="relative z-10 backdrop-blur-2xl bg-white/70 shadow-2xl rounded-3xl p-6 sm:p-8 lg:p-10 w-full max-w-md mx-auto border border-gray-200" data-aos="zoom-in">
 
     <!-- Title -->
-    <h2 class="text-4xl font-extrabold text-center text-indigo-600 mb-6 tracking-tight">Welcome Back</h2>
-    <p class="text-center text-gray-700 mb-8">Sign in to continue</p>
+    <h2 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-center text-indigo-600 mb-4 sm:mb-6 tracking-tight">Welcome Back</h2>
+    <p class="text-center text-gray-700 mb-6 sm:mb-8 text-sm sm:text-base">Sign in to continue</p>
+
+    <!-- Success Message -->
+    @if (session('success'))
+      <div class="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl">
+        <div class="flex items-center">
+          <svg class="w-5 h-5 text-green-500 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+          </svg>
+          <span class="text-green-700 text-sm font-medium">{{ session('success') }}</span>
+        </div>
+      </div>
+    @endif
+
+    <!-- Password Changed Message -->
+        @if (session('password-changed'))
+          <div class="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl">
+            <div class="flex items-center">
+              <svg class="w-5 h-5 text-green-500 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+              <div>
+                <span class="text-green-700 text-sm font-medium">{{ session('password-changed') }}</span>
+                <p class="text-green-600 text-xs mt-1">Please log in with your new password.</p>
+              </div>
+            </div>
+          </div>
+        @endif
+
+    <!-- Error Message -->
+    @if (session('error'))
+      <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl">
+        <div class="flex items-center">
+          <svg class="w-5 h-5 text-red-500 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <span class="text-red-700 text-sm font-medium">{{ session('error') }}</span>
+        </div>
+      </div>
+    @endif
 
     <!-- Form -->
-    <form method="POST" action="{{ route('login') }}" class="space-y-6">
+    <form method="POST" action="{{ route('login') }}" class="space-y-4 sm:space-y-6">
       @csrf
       <!-- Username -->
       <div class="relative">
-        <input id="email" type="email" name="email" required autofocus
-          class="peer w-full px-4 py-3 rounded-xl border border-gray-300 text-gray-900 bg-transparent focus:ring-2 focus:ring-indigo-500 focus:outline-none placeholder-transparent"
+        <input id="email" type="email" name="email" required autofocus tabindex="1"
+          class="peer w-full px-4 py-3 rounded-xl border border-gray-300 text-gray-900 bg-white/80 focus:ring-2 focus:ring-indigo-500 focus:outline-none placeholder-transparent transition-all duration-200 backdrop-blur-sm"
           placeholder="Username">
-        <label for="email" class="absolute left-4 -top-2.5 text-sm text-gray-600 bg-white/70 px-1 transition-all peer-placeholder-shown:top-3 peer-placeholder-shown:text-gray-400 peer-placeholder-shown:text-base peer-focus:-top-2.5 peer-focus:text-sm peer-focus:text-indigo-600">Username</label>
+        <label for="email" class="absolute left-4 -top-2.5 text-sm text-gray-600 bg-white/90 px-1 transition-all peer-placeholder-shown:top-3 peer-placeholder-shown:text-gray-400 peer-placeholder-shown:text-base peer-focus:-top-2.5 peer-focus:text-sm peer-focus:text-indigo-600">Email</label>
       </div>
 
       <!-- Password -->
       <div class="relative">
-        <input id="password" type="password" name="password" required
-          class="peer w-full px-4 py-3 rounded-xl border border-gray-300 text-gray-900 bg-transparent focus:ring-2 focus:ring-indigo-500 focus:outline-none placeholder-transparent"
+        <input id="password" type="password" name="password" required tabindex="2"
+          class="peer w-full px-4 py-3 pr-12 rounded-xl border border-gray-300 text-gray-900 bg-white/80 focus:ring-2 focus:ring-indigo-500 focus:outline-none placeholder-transparent transition-all duration-200 backdrop-blur-sm"
           placeholder="Password">
-        <label for="password" class="absolute left-4 -top-2.5 text-sm text-gray-600 bg-white/70 px-1 transition-all peer-placeholder-shown:top-3 peer-placeholder-shown:text-gray-400 peer-placeholder-shown:text-base peer-focus:-top-2.5 peer-focus:text-sm peer-focus:text-indigo-600">Password</label>
+        <label for="password" class="absolute left-4 -top-2.5 text-sm text-gray-600 bg-white/90 px-1 transition-all peer-placeholder-shown:top-3 peer-placeholder-shown:text-gray-400 peer-placeholder-shown:text-base peer-focus:-top-2.5 peer-focus:text-sm peer-focus:text-indigo-600">Password</label>
+        <button type="button" onclick="togglePasswordVisibility('password', 'eyeIconLogin')" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700 focus:outline-none p-1 rounded-md hover:bg-gray-100 transition-colors duration-200" tabindex="-1">
+          <svg id="eyeIconLogin" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+          </svg>
+        </button>
       </div>
 
       <!-- Remember & Forgot -->
@@ -70,24 +115,24 @@
             class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
           <span class="text-gray-700">Remember me</span>
         </label>
-        <a href="{{ route('password.request') }}" class="text-indigo-600 hover:underline font-medium">
+        <a href="{{ route('password.request') }}" class="text-indigo-600 hover:underline font-medium transition-colors duration-200">
           Forgot Password?
         </a>
       </div>
 
       <!-- Login Button -->
-      <button type="submit"
-        class="w-full py-3 px-4 bg-gradient-to-r from-indigo-500 to-blue-500 text-white font-semibold rounded-xl shadow-md hover:shadow-lg hover:scale-[1.02] transition-all duration-200">
-        Sign In
+      <button type="submit" tabindex="3"
+        class="w-full py-3 px-4 bg-gradient-to-r from-indigo-500 to-blue-500 text-white font-semibold rounded-xl shadow-md hover:shadow-lg hover:scale-[1.02] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transform">
+        Log In
       </button>
 
     </form>
 
     <!-- Signup Button -->
-    <div class="mt-8 text-center">
-      <p class="text-gray-700 mb-3">Don’t have an account?</p>
+    <div class="mt-6 sm:mt-8 text-center">
+      <p class="text-gray-700 mb-3 text-sm sm:text-base">Don't have an account?</p>
       <a href="{{ route('register') }}"
-        class="inline-block px-6 py-2 rounded-xl border border-indigo-500 text-indigo-600 font-semibold hover:bg-indigo-50 transition">
+        class="inline-block px-6 py-2 rounded-xl border border-indigo-500 text-indigo-600 font-semibold hover:bg-indigo-50 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transform hover:scale-105">
         Create Account
       </a>
     </div>
@@ -200,6 +245,24 @@
 <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 <script>
   AOS.init({ duration: 800, once: true });
+
+  function togglePasswordVisibility(inputId, iconId) {
+    const input = document.getElementById(inputId);
+    const icon = document.getElementById(iconId);
+    
+    if (input.type === 'password') {
+      input.type = 'text';
+      icon.innerHTML = `
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+      `;
+    } else {
+      input.type = 'password';
+      icon.innerHTML = `
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+      `;
+    }
+  }
 </script>
 
 </body>

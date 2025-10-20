@@ -3,14 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>{{ $pageTitle ?? 'Speech Conversion' }}</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    
+    @vite('resources/css/app.css')
+    <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet">
+    @vite('resources/css/login.css')
     
     <!-- External CSS -->
     <link rel="stylesheet" href="{{ asset('css\speech.conversion.css') }}">
     
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Animate.css -->
@@ -18,12 +20,51 @@
     <!-- GSAP for advanced animations -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
 </head>
-<body class="font-sans antialiased page-fade-in">
-    
-    <!-- Circular Back Button -->
-    <button id="backButton" class="fixed top-20 left-4 w-10 h-10 bg-gray-800 hover:bg-gray-700 text-white rounded-full shadow-lg z-50 transition-all duration-300 flex items-center justify-center ripple">
-        <i class="fas fa-arrow-left"></i>
-    </button>
+<body class="font-sans text-gray-800 bg-gray-50 scroll-smooth">
+
+<img src="{{ asset('images/bg.png') }}" alt="Background" class="background-image opacity-20">
+<img src="{{ asset('images/bg.png') }}" alt="Background" class="background-image flipped opacity-20">
+
+<!-- Navbar with Profile Dropdown -->
+<nav class="fixed top-0 left-0 w-full backdrop-blur-xl bg-white/50 border-b border-gray-200 shadow-md z-50">
+  <div class="max-w-7xl mx-auto px-6 flex justify-between items-center py-4">
+
+    <!-- Logo -->
+    <a href="{{ route('dashboard') }}" class="text-2xl font-extrabold text-indigo-600 tracking-tight">ASyne</a>
+
+    <!-- Links -->
+    <div class="flex items-center space-x-8 relative">
+         <a href="{{ route('dashboard') }}" class="text-gray-700 font-medium hover:text-indigo-600 transition">Dashboard</a>
+      <a href="{{ route('dashboard') }}#about" class="text-gray-700 font-medium hover:text-indigo-600 transition">About</a>
+      <a href="{{ route('dashboard') }}#faqs" class="text-gray-700 font-medium hover:text-indigo-600 transition">FAQ's</a>
+      <a href="{{ route('dashboard') }}#contacts" class="text-gray-700 font-medium hover:text-indigo-600 transition">Contacts</a>
+
+      <!-- Profile Dropdown -->
+      @auth
+      <div x-data="{ open: false }" class="relative">
+        <button @click="open = !open" class="flex items-center space-x-2 text-gray-700 font-medium hover:text-indigo-600 transition focus:outline-none">
+          <span>{{ Auth::user()->fullName }}</span>
+          <svg class="w-4 h-4 transition-transform" :class="{'rotate-180': open}" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+          </svg>
+        </button>
+        <div x-show="open" x-transition class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg z-50 overflow-hidden">
+          <a href="{{ route('profile.edit') }}" class="block px-4 py-3 text-gray-700 dark:text-gray-100 hover:bg-indigo-50 dark:hover:bg-gray-800 transition">Profile</a>
+          <form method="POST" action="{{ route('logout') }}" id="logoutForm">
+            @csrf
+            <button type="submit" class="w-full text-left px-4 py-3 text-gray-700 dark:text-gray-100 hover:bg-red-50 dark:hover:bg-gray-800 transition">Logout</button>
+          </form>
+        </div>
+      </div>
+      @endauth
+    </div>
+  </div>
+</nav>
+
+<!-- Back Button -->
+<button id="backButton" class="fixed top-20 left-4 w-10 h-10 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full shadow-lg z-40 transition-all duration-300 flex items-center justify-center">
+    <i class="fas fa-arrow-left"></i>
+</button>
     
     <!-- Toast Notification Container -->
     <div id="toast" class="toast"></div>
@@ -31,49 +72,50 @@
     
 
     <!-- Main Content -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-24">
-        <div class="text-center mb-12 md:mb-16">
-            <h1 class="text-3xl sm:text-4xl font-extrabold text-white sm:text-5xl sm:tracking-tight lg:text-6xl animate__animated animate__fadeIn">
+    <main class="max-w-7xl mx-auto px-6 py-28">
+        <div class="text-center mb-12 md:mb-16" data-aos="fade-up">
+            <h1 class="text-4xl md:text-5xl font-extrabold text-indigo-600 mb-4">
                 <span class="gradient-text">Speech Conversion</span>
             </h1>
-            <p class="mt-3 md:mt-5 max-w-xl mx-auto text-lg md:text-xl text-gray-400 animate__animated animate__fadeIn animate__delay-1s">Convert between text and speech with multi-language support</p>
+            <p class="text-xl md:text-2xl font-medium text-gray-900 leading-snug italic mb-6">
+                'Convert between text and speech with multi-language support.'
+            </p>
         </div>
 
-        <div class="max-w-2xl mx-auto">
+        <div class="max-w-4xl mx-auto">
             <!-- Tabs -->
-            <div class="flex mb-6 bg-gray-800 rounded-lg p-1 animate__animated animate__fadeIn animate__delay-1s">
-                <button id="ttsTab" class="tab-button flex-1 py-2 px-4 rounded-md font-medium active ripple">
+            <div class="flex mb-8 backdrop-blur-2xl bg-white/70 shadow-xl rounded-3xl p-2 animate__animated animate__fadeIn animate__delay-1s" data-aos="zoom-in">
+                <button id="ttsTab" class="tab-button flex-1 py-3 px-6 rounded-2xl font-semibold active ripple transition-all duration-300">
                     <i class="fas fa-volume-up mr-2"></i>Text to Speech
                 </button>
-                <button id="sttTab" class="tab-button flex-1 py-2 px-4 rounded-md font-medium ripple">
+                <button id="sttTab" class="tab-button flex-1 py-3 px-6 rounded-2xl font-semibold ripple transition-all duration-300">
                     <i class="fas fa-microphone mr-2"></i>Speech to Text
                 </button>
             </div>
 
             <!-- Text to Speech Card -->
-            <div id="ttsSection" class="card rounded-lg overflow-hidden mb-6 animate__animated animate__fadeIn animate__delay-1s">
-                <div class="p-6">
-                    <div class="mb-4">
-                        <textarea id="ttsText" class="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-gray-200" rows="5" placeholder="Enter text to convert to speech..."></textarea>
-                        <div class="flex justify-between items-center mt-2">
+            <div id="ttsSection" class="backdrop-blur-2xl bg-white/70 shadow-xl rounded-3xl p-10 mb-8 hover:scale-[1.02] transition-transform duration-300 animate__animated animate__fadeIn animate__delay-1s" data-aos="zoom-in">
+                <div class="space-y-6">
+                    <div>
+                        <textarea id="ttsText" class="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-800 placeholder-gray-500" rows="5" placeholder="Enter text to convert to speech..."></textarea>
+                        <div class="flex justify-between items-center mt-3">
                             <div class="flex items-center">
-                                <div id="ttsStatus" class="status-text text-blue-400"></div>
+                                <div id="ttsStatus" class="status-text text-indigo-600 font-medium"></div>
                                 <div id="ttsProgress" class="progress-bar hidden ml-3" style="width: 100px;">
                                     <div class="progress-fill"></div>
                                 </div>
                             </div>
-                            <div class="flex">
-                                <span id="ttsCharCount" class="character-count mr-3">0 characters</span>
-                                <button id="clearTtsText" class="bg-gray-700 hover:bg-gray-600 text-gray-300 px-3 py-1 rounded-md text-sm font-medium tooltip ripple">
+                            <div class="flex items-center space-x-3">
+                                <span id="ttsCharCount" class="text-sm text-gray-600">0 characters</span>
+                                <button id="clearTtsText" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1 rounded-lg text-sm font-medium transition-all duration-200">
                                     <i class="fas fa-eraser mr-1"></i>Clear
-                                    <span class="tooltiptext">Clear text</span>
                                 </button>
                             </div>
                         </div>
                     </div>
 
-                    <div class="mb-4">
-                        <select id="ttsVoice" class="w-full bg-gray-800 border border-gray-700 text-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                    <div>
+                        <select id="ttsVoice" class="w-full bg-white border border-gray-300 text-gray-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
                             <option value="en-US"><span class="language-flag" style="background-image: url('https://flagcdn.com/w20/us.png');"></span> English (US) - Joanna</option>
                             <option value="en-GB"><span class="language-flag" style="background-image: url('https://flagcdn.com/w20/gb.png');"></span> English (UK) - Brian</option>
                             <option value="es-ES"><span class="language-flag" style="background-image: url('https://flagcdn.com/w20/es.png');"></span> Spanish - Enrique</option>
@@ -82,10 +124,10 @@
                             <option value="it-IT"><span class="language-flag" style="background-image: url('https://flagcdn.com/w20/it.png');"></span> Italian - Carla</option>
                             <option value="ja-JP"><span class="language-flag" style="background-image: url('https://flagcdn.com/w20/jp.png');"></span> Japanese - Takumi</option>
                         </select>
-                        <div class="voice-preview">
+                        <div class="flex items-center mt-3 text-sm text-gray-600">
                             <span>Preview voice:</span>
-                            <span id="voicePreviewText" class="ml-2">Hello, how are you?</span>
-                            <button id="previewVoiceBtn" class="voice-preview-btn ripple">
+                            <span id="voicePreviewText" class="ml-2 font-medium">Hello, how are you?</span>
+                            <button id="previewVoiceBtn" class="ml-3 bg-indigo-100 hover:bg-indigo-200 text-indigo-600 px-3 py-1 rounded-lg transition-all duration-200">
                                 <i class="fas fa-play"></i>
                             </button>
                         </div>
@@ -105,65 +147,59 @@
                         <div class="visualizer-bar"></div>
                     </div>
 
-                    <div class="flex flex-wrap justify-center gap-2 mb-4">
-                        <button id="playTTS" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium flex items-center tooltip ripple">
+                    <div class="flex flex-wrap justify-center gap-3">
+                        <button id="playTTS" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl text-sm font-semibold flex items-center shadow-md hover:shadow-lg transition-all duration-200">
                             <i class="fas fa-play mr-2"></i>Play
-                            <span class="tooltiptext">Play the text as speech</span>
                         </button>
-                        <button id="pauseTTS" class="bg-gray-700 hover:bg-gray-600 text-gray-300 px-4 py-2 rounded-md text-sm font-medium flex items-center tooltip ripple" disabled>
+                        <button id="pauseTTS" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-3 rounded-xl text-sm font-semibold flex items-center shadow-md hover:shadow-lg transition-all duration-200" disabled>
                             <i class="fas fa-pause mr-2"></i>Pause
-                            <span class="tooltiptext">Pause playback</span>
                         </button>
-                        <button id="stopTTS" class="bg-gray-700 hover:bg-gray-600 text-gray-300 px-4 py-2 rounded-md text-sm font-medium flex items-center tooltip ripple" disabled>
+                        <button id="stopTTS" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-3 rounded-xl text-sm font-semibold flex items-center shadow-md hover:shadow-lg transition-all duration-200" disabled>
                             <i class="fas fa-stop mr-2"></i>Stop
-                            <span class="tooltiptext">Stop playback</span>
                         </button>
                         <div class="relative">
-                            <button id="speedControlBtn" class="bg-gray-700 hover:bg-gray-600 text-gray-300 px-4 py-2 rounded-md text-sm font-medium flex items-center tooltip ripple">
+                            <button id="speedControlBtn" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-3 rounded-xl text-sm font-semibold flex items-center shadow-md hover:shadow-lg transition-all duration-200">
                                 <i class="fas fa-tachometer-alt mr-2"></i>Speed: 1x
-                                <span class="tooltiptext">Adjust playback speed</span>
                             </button>
-                            <div id="speedOptions" class="absolute bottom-full left-0 mb-2 w-full bg-gray-800 border border-gray-700 rounded-md shadow-lg hidden z-10">
-                                <button class="speed-option w-full text-left px-4 py-2 text-sm text-gray-200 hover:bg-gray-700 ripple" data-speed="0.5">0.5x</button>
-                                <button class="speed-option w-full text-left px-4 py-2 text-sm text-gray-200 hover:bg-gray-700 ripple" data-speed="0.75">0.75x</button>
-                                <button class="speed-option w-full text-left px-4 py-2 text-sm text-gray-200 hover:bg-gray-700 ripple" data-speed="1" data-selected="true">1x (Normal)</button>
-                                <button class="speed-option w-full text-left px-4 py-2 text-sm text-gray-200 hover:bg-gray-700 ripple" data-speed="1.25">1.25x</button>
-                                <button class="speed-option w-full text-left px-4 py-2 text-sm text-gray-200 hover:bg-gray-700 ripple" data-speed="1.5">1.5x</button>
-                                <button class="speed-option w-full text-left px-4 py-2 text-sm text-gray-200 hover:bg-gray-700 ripple" data-speed="2">2x</button>
+                            <div id="speedOptions" class="absolute bottom-full left-0 mb-2 w-full bg-white border border-gray-300 rounded-xl shadow-lg hidden z-10">
+                                <button class="speed-option w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 transition-all duration-200" data-speed="0.5">0.5x</button>
+                                <button class="speed-option w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 transition-all duration-200" data-speed="0.75">0.75x</button>
+                                <button class="speed-option w-full text-left px-4 py-3 text-sm text-indigo-600 hover:bg-indigo-50 transition-all duration-200" data-speed="1" data-selected="true">1x (Normal)</button>
+                                <button class="speed-option w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 transition-all duration-200" data-speed="1.25">1.25x</button>
+                                <button class="speed-option w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 transition-all duration-200" data-speed="1.5">1.5x</button>
+                                <button class="speed-option w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-indigo-50 transition-all duration-200" data-speed="2">2x</button>
                             </div>
                         </div>
-                        <button id="downloadTTS" class="bg-gray-700 hover:bg-gray-600 text-gray-300 px-4 py-2 rounded-md text-sm font-medium flex items-center tooltip ripple">
+                        <button id="downloadTTS" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-3 rounded-xl text-sm font-semibold flex items-center shadow-md hover:shadow-lg transition-all duration-200">
                             <i class="fas fa-download mr-2"></i>Download
-                            <span class="tooltiptext">Download as MP3</span>
                         </button>
                     </div>
                 </div>
             </div>
 
             <!-- Speech to Text Card -->
-            <div id="sttSection" class="card rounded-lg overflow-hidden hidden animate__animated animate__fadeIn">
-                <div class="p-6">
+            <div id="sttSection" class="backdrop-blur-2xl bg-white/70 shadow-xl rounded-3xl p-10 mb-8 hover:scale-[1.02] transition-transform duration-300 hidden animate__animated animate__fadeIn" data-aos="zoom-in">
+                <div class="space-y-6">
                     <!-- Conversation History -->
                     <div id="conversationHistory" class="conversation-history hidden">
                         <!-- Conversation items will be added here dynamically -->
                     </div>
 
-                    <div class="mb-4">
-                        <textarea id="sttText" class="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 text-gray-200" rows="5" placeholder="Your speech will appear here..."></textarea>
-                        <div class="flex justify-between items-center mt-2">
-                            <div id="sttStatus" class="status-text text-blue-400"></div>
-                            <div class="flex">
-                                <span id="sttWordCount" class="character-count mr-3">0 words</span>
-                                <button id="clearSttText" class="bg-gray-700 hover:bg-gray-600 text-gray-300 px-3 py-1 rounded-md text-sm font-medium tooltip ripple">
+                    <div>
+                        <textarea id="sttText" class="w-full px-4 py-3 bg-white border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-800 placeholder-gray-500" rows="5" placeholder="Your speech will appear here..."></textarea>
+                        <div class="flex justify-between items-center mt-3">
+                            <div id="sttStatus" class="status-text text-indigo-600 font-medium"></div>
+                            <div class="flex items-center space-x-3">
+                                <span id="sttWordCount" class="text-sm text-gray-600">0 words</span>
+                                <button id="clearSttText" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1 rounded-lg text-sm font-medium transition-all duration-200">
                                     <i class="fas fa-eraser mr-1"></i>Clear
-                                    <span class="tooltiptext">Clear text</span>
                                 </button>
                             </div>
                         </div>
                     </div>
 
-                    <div class="mb-4">
-                        <select id="sttLanguage" class="w-full bg-gray-800 border border-gray-700 text-gray-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                    <div>
+                        <select id="sttLanguage" class="w-full bg-white border border-gray-300 text-gray-800 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
                             <option value="en-US"><span class="language-flag" style="background-image: url('https://flagcdn.com/w20/us.png');"></span> English (US)</option>
                             <option value="en-GB"><span class="language-flag" style="background-image: url('https://flagcdn.com/w20/gb.png');"></span> English (UK)</option>
                             <option value="es-ES"><span class="language-flag" style="background-image: url('https://flagcdn.com/w20/es.png');"></span> Spanish</option>
@@ -188,44 +224,38 @@
                         <div class="visualizer-bar"></div>
                     </div>
 
-                    <div class="flex flex-wrap justify-center gap-2 mb-4">
-                        <button id="startSTT" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium flex items-center tooltip ripple">
+                    <div class="flex flex-wrap justify-center gap-3">
+                        <button id="startSTT" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl text-sm font-semibold flex items-center shadow-md hover:shadow-lg transition-all duration-200">
                             <i class="fas fa-microphone mr-2"></i>Start Listening
-                            <span class="tooltiptext">Start speech recognition</span>
                         </button>
-                        <button id="stopSTT" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium flex items-center tooltip hidden ripple">
+                        <button id="stopSTT" class="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-xl text-sm font-semibold flex items-center shadow-md hover:shadow-lg transition-all duration-200 hidden">
                             <i class="fas fa-stop mr-2"></i>Stop
-                            <span class="tooltiptext">Stop speech recognition</span>
                         </button>
-                        <button id="speakSTT" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md text-sm font-medium flex items-center tooltip ripple" disabled>
+                        <button id="speakSTT" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl text-sm font-semibold flex items-center shadow-md hover:shadow-lg transition-all duration-200" disabled>
                             <i class="fas fa-volume-up mr-2"></i>Speak
-                            <span class="tooltiptext">Speak the recognized text</span>
                         </button>
-                        <button id="copySTT" class="bg-gray-700 hover:bg-gray-600 text-gray-300 px-4 py-2 rounded-md text-sm font-medium flex items-center tooltip ripple" disabled>
+                        <button id="copySTT" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-3 rounded-xl text-sm font-semibold flex items-center shadow-md hover:shadow-lg transition-all duration-200" disabled>
                             <i class="fas fa-copy mr-2"></i>Copy
-                            <span class="tooltiptext">Copy to clipboard</span>
                         </button>
-                        <button id="saveSTT" class="bg-gray-700 hover:bg-gray-600 text-gray-300 px-4 py-2 rounded-md text-sm font-medium flex items-center tooltip ripple" disabled>
+                        <button id="saveSTT" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-3 rounded-xl text-sm font-semibold flex items-center shadow-md hover:shadow-lg transition-all duration-200" disabled>
                             <i class="fas fa-save mr-2"></i>Save
-                            <span class="tooltiptext">Save as text file</span>
                         </button>
-                        <button id="toggleHistory" class="bg-gray-700 hover:bg-gray-600 text-gray-300 px-4 py-2 rounded-md text-sm font-medium flex items-center tooltip ripple">
+                        <button id="toggleHistory" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-3 rounded-xl text-sm font-semibold flex items-center shadow-md hover:shadow-lg transition-all duration-200">
                             <i class="fas fa-history mr-2"></i>History
-                            <span class="tooltiptext">Show conversation history</span>
                         </button>
                     </div>
-                    <div class="text-center mt-4">
-                        <div id="micStatus" class="text-sm text-gray-400 flex items-center justify-center">
-                            <span id="micIcon" class="mr-2"><i class="fas fa-microphone-slash"></i></span>
+                    <div class="text-center mt-6">
+                        <div id="micStatus" class="text-sm text-gray-600 flex items-center justify-center">
+                            <span id="micIcon" class="mr-2 text-indigo-600"><i class="fas fa-microphone-slash"></i></span>
                             <span id="micStatusText">Microphone: Not ready</span>
                         </div>
-                        <div id="confidenceMeter" class="mt-2 hidden">
-                            <div class="flex justify-between text-xs text-gray-400 mb-1">
+                        <div id="confidenceMeter" class="mt-3 hidden">
+                            <div class="flex justify-between text-xs text-gray-600 mb-2">
                                 <span>Confidence:</span>
                                 <span id="confidenceValue">0%</span>
                             </div>
-                            <div class="w-full bg-gray-700 rounded-full h-2">
-                                <div id="confidenceBar" class="bg-blue-600 h-2 rounded-full" style="width: 0%"></div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div id="confidenceBar" class="bg-indigo-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
                             </div>
                         </div>
                     </div>
@@ -234,30 +264,24 @@
         </div>
     </main>
 
- 
-
-    <!-- Dark/Light Mode Toggle -->
-    <div class="theme-toggle ripple" id="themeToggle">
-        <i class="fas fa-moon text-white" id="themeIcon"></i>
-    </div>
 
     <!-- Microphone Permission Modal -->
     <div id="micModal" class="modal fixed inset-0 bg-gray-900/80 flex items-center justify-center p-4 z-50 opacity-0 invisible">
-        <div class="modal-content bg-gray-800 rounded-lg max-w-md w-full animate__animated animate__fadeInUp">
-            <div class="p-6">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-xl font-bold text-white">Microphone Access</h3>
-                    <button onclick="closeModal('micModal')" class="text-gray-400 hover:text-white ripple">
-                        <i class="fas fa-times"></i>
+        <div class="modal-content bg-white rounded-3xl max-w-md w-full animate__animated animate__fadeInUp shadow-2xl">
+            <div class="p-8">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-bold text-gray-900">Microphone Access</h3>
+                    <button onclick="closeModal('micModal')" class="text-gray-400 hover:text-gray-600 transition-colors duration-200">
+                        <i class="fas fa-times text-xl"></i>
                     </button>
                 </div>
-                <div class="space-y-4 text-gray-300">
-                    <p>To use speech recognition, we need access to your microphone. Your audio is processed locally and never stored or transmitted.</p>
-                    <div class="flex justify-end pt-4 space-x-3">
-                        <button onclick="closeModal('micModal')" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-md ripple">
+                <div class="space-y-4 text-gray-700">
+                    <p class="text-lg">To use speech recognition, we need access to your microphone. Your audio is processed locally and never stored or transmitted.</p>
+                    <div class="flex justify-end pt-6 space-x-3">
+                        <button onclick="closeModal('micModal')" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-3 rounded-xl font-semibold transition-all duration-200">
                             Cancel
                         </button>
-                        <button id="confirmMic" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md ripple">
+                        <button id="confirmMic" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-200">
                             Allow Microphone
                         </button>
                     </div>
@@ -268,18 +292,18 @@
 
     <!-- Audio Context Warning Modal -->
     <div id="audioContextModal" class="modal fixed inset-0 bg-gray-900/80 flex items-center justify-center p-4 z-50 opacity-0 invisible">
-        <div class="modal-content bg-gray-800 rounded-lg max-w-md w-full animate__animated animate__fadeInUp">
-            <div class="p-6">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-xl font-bold text-white">Audio Playback Notice</h3>
-                    <button onclick="closeModal('audioContextModal')" class="text-gray-400 hover:text-white ripple">
-                        <i class="fas fa-times"></i>
+        <div class="modal-content bg-white rounded-3xl max-w-md w-full animate__animated animate__fadeInUp shadow-2xl">
+            <div class="p-8">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-bold text-gray-900">Audio Playback Notice</h3>
+                    <button onclick="closeModal('audioContextModal')" class="text-gray-400 hover:text-gray-600 transition-colors duration-200">
+                        <i class="fas fa-times text-xl"></i>
                     </button>
                 </div>
-                <div class="space-y-4 text-gray-300">
-                    <p>For security reasons, your browser requires interaction with the page before audio can play. Please click the play button again to hear the speech.</p>
-                    <div class="flex justify-end pt-4">
-                        <button onclick="closeModal('audioContextModal')" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md ripple">
+                <div class="space-y-4 text-gray-700">
+                    <p class="text-lg">For security reasons, your browser requires interaction with the page before audio can play. Please click the play button again to hear the speech.</p>
+                    <div class="flex justify-end pt-6">
+                        <button onclick="closeModal('audioContextModal')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl font-semibold transition-all duration-200">
                             OK
                         </button>
                     </div>
@@ -290,24 +314,24 @@
 
     <!-- Conversation Options Modal -->
     <div id="conversationModal" class="modal fixed inset-0 bg-gray-900/80 flex items-center justify-center p-4 z-50 opacity-0 invisible">
-        <div class="modal-content bg-gray-800 rounded-lg max-w-md w-full animate__animated animate__fadeInUp">
-            <div class="p-6">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-xl font-bold text-white">Conversation Options</h3>
-                    <button onclick="closeModal('conversationModal')" class="text-gray-400 hover:text-white ripple">
-                        <i class="fas fa-times"></i>
+        <div class="modal-content bg-white rounded-3xl max-w-md w-full animate__animated animate__fadeInUp shadow-2xl">
+            <div class="p-8">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-bold text-gray-900">Conversation Options</h3>
+                    <button onclick="closeModal('conversationModal')" class="text-gray-400 hover:text-gray-600 transition-colors duration-200">
+                        <i class="fas fa-times text-xl"></i>
                     </button>
                 </div>
-                <div class="space-y-4 text-gray-300">
-                    <p>Would you like to start a new conversation or continue with the existing one?</p>
-                    <div class="flex flex-col space-y-3 pt-4">
-                        <button id="newConversationBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-md font-medium flex items-center justify-center transition-all ripple">
+                <div class="space-y-4 text-gray-700">
+                    <p class="text-lg">Would you like to start a new conversation or continue with the existing one?</p>
+                    <div class="flex flex-col space-y-3 pt-6">
+                        <button id="newConversationBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-4 rounded-xl font-semibold flex items-center justify-center transition-all duration-200">
                             <i class="fas fa-plus-circle mr-2"></i> Start New Conversation
                         </button>
-                        <button id="continueConversationBtn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-3 rounded-md font-medium flex items-center justify-center transition-all ripple">
+                        <button id="continueConversationBtn" class="bg-green-600 hover:bg-green-700 text-white px-6 py-4 rounded-xl font-semibold flex items-center justify-center transition-all duration-200">
                             <i class="fas fa-play-circle mr-2"></i> Continue Conversation
                         </button>
-                        <button onclick="closeModal('conversationModal')" class="bg-gray-700 hover:bg-gray-600 text-gray-300 px-4 py-3 rounded-md font-medium ripple">
+                        <button onclick="closeModal('conversationModal')" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-4 rounded-xl font-semibold transition-all duration-200">
                             Cancel
                         </button>
                     </div>
@@ -317,6 +341,25 @@
     </div>
 
     <!-- JavaScript -->
+    <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <script src="{{ asset('js/session-validator.js') }}"></script>
     <script src="{{ asset('js/speech-conversion.js') }}"></script>
+    <script>
+        AOS.init({ duration: 800, once: true });
+
+        // Enhanced logout handling
+        document.getElementById('logoutForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Stop session monitoring
+            if (window.sessionValidator) {
+                window.sessionValidator.stopSessionMonitoring();
+            }
+            
+            // Submit logout form
+            this.submit();
+        });
+    </script>
 </body>
 </html>

@@ -42,6 +42,15 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerateToken();
 
+        // For AJAX requests, return JSON response
+        if ($request->ajax()) {
+            return response()->json([
+                'logged_out' => true,
+                'redirect' => route('login'),
+                'message' => 'Logged out successfully'
+            ]);
+        }
+
         return redirect()->route('login');
     }
 }

@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>ASyne</title>
+  <meta name="csrf-token" content="{{ csrf_token() }}">
   @vite('resources/css/app.css')
   <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet">
   @vite('resources/css/login.css')
@@ -38,7 +39,7 @@
         </button>
         <div x-show="open" x-transition class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg z-50 overflow-hidden">
           <a href="{{ route('profile.edit') }}" class="block px-4 py-3 text-gray-700 dark:text-gray-100 hover:bg-indigo-50 dark:hover:bg-gray-800 transition">Profile</a>
-          <form method="POST" action="{{ route('logout') }}">
+          <form method="POST" action="{{ route('logout') }}" id="logoutForm">
             @csrf
             <button type="submit" class="w-full text-left px-4 py-3 text-gray-700 dark:text-gray-100 hover:bg-red-50 dark:hover:bg-gray-800 transition">Logout</button>
           </form>
@@ -64,9 +65,9 @@
 
         <!-- Buttons: Sign Language & Text-to-Speech -->
         <div class="flex flex-wrap gap-4 mt-4">
-          <button id="signLanguageBtn" class="px-6 py-3 rounded-xl bg-blue-500 text-white font-semibold shadow-md hover:shadow-lg hover:scale-[1.02] transition duration-200">
+          <a href="https://172.20.10.2:5000"><button id="signLanguageBtn" class="px-6 py-3 rounded-xl bg-blue-500 text-white font-semibold shadow-md hover:shadow-lg hover:scale-[1.02] transition duration-200">
             Sign Language Translator
-          </button>
+          </button></a>
 
           <!-- Fixed Text-to-Speech Button -->
           <a href="{{ route('speech.conversion') }}" 
@@ -165,8 +166,22 @@
 
 <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+<script src="{{ asset('js/session-validator.js') }}"></script>
 <script>
   AOS.init({ duration: 800, once: true });
+
+  // Enhanced logout handling
+  document.getElementById('logoutForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    // Stop session monitoring
+    if (window.sessionValidator) {
+      window.sessionValidator.stopSessionMonitoring();
+    }
+    
+    // Submit logout form
+    this.submit();
+  });
 
   // Placeholder JS for buttons
   document.getElementById('signLanguageBtn').addEventListener('click', () => {

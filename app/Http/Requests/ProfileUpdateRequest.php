@@ -15,16 +15,43 @@ class ProfileUpdateRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
-            'name' => ['required', 'string', 'max:255'],
-            'email' => [
+        $user = $this->user();
+        $rules = [];
+
+        // Always validate name if provided
+        $rules['name'] = ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/', 'min:2'];
+
+        // Only validate email if it's different from current email
+        if ($this->input('email') !== $user->email) {
+            $rules['email'] = [
                 'required',
                 'string',
                 'lowercase',
                 'email',
                 'max:255',
-                Rule::unique(User::class)->ignore($this->user()->id),
-            ],
+                'regex:/^[a-zA-Z0-9._%+-]+@(gmail\.com|outlook\.com|yahoo\.com)$/',
+                Rule::unique(User::class)->ignore($user->id),
+            ];
+        } else {
+            // If email is the same, just basic validation without unique check
+            $rules['email'] = [
+                'required',
+                'string',
+                'lowercase',
+                'email',
+                'max:255',
+                'regex:/^[a-zA-Z0-9._%+-]+@(gmail\.com|outlook\.com|yahoo\.com)$/',
+            ];
+        }
+
+        return $rules;
+    }
+
+    public function messages(): array
+    {
+        return [
+            'name.regex' => 'Name should only contain letters and spaces',
+            'email.regex' => 'Email must be from gmail.com, outlook.com, or yahoo.com',
         ];
     }
 }
