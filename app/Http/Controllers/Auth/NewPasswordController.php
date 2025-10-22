@@ -33,7 +33,14 @@ class NewPasswordController extends Controller
         $request->validate([
             'token' => ['required'],
             'email' => ['required', 'email'],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'password' => [
+                'required', 
+                'confirmed',
+                'min:8',
+                'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#^()_\-+=\[\]{}|\\:;"\'<>,.\/])[A-Za-z\d@$!%*?&#^()_\-+=\[\]{}|\\:;"\'<>,.\/]{8,}$/'
+            ],
+        ], [
+            'password.regex' => 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character',
         ]);
 
         // Here we will attempt to reset the user's password. If it is successful we

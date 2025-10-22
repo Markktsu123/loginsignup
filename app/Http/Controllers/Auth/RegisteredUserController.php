@@ -11,11 +11,12 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
+use Ramsey\Uuid\Uuid;
 
 class RegisteredUserController extends Controller
 {
     /**
-     * Display the registration view.
+     * Show the registration view.
      */
     public function create(): View
     {
@@ -23,28 +24,45 @@ class RegisteredUserController extends Controller
     }
 
     /**
-     * Handle an incoming registration request.
-     *
-     * @throws \Illuminate\Validation\ValidationException
+     * Handle registration request.
      */
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'fullName' => ['required', 'string', 'max:255', 'regex:/^[a-zA-Z\s]+$/', 'min:2'],
+            'email'    => [
+                'required', 
+                'string', 
+                'lowercase', 
+                'email', 
+                'max:255', 
+                'unique:users,email',
+                'regex:/^[a-zA-Z0-9._%+-]+@(gmail\.com|outlook\.com|yahoo\.com)$/'
+            ],
+            'password' => [
+                'required', 
+                'confirmed',
+                'min:8',
+                'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#^()_\-+=\[\]{}|\\:;"\'<>,.\/])[A-Za-z\d@$!%*?&#^()_\-+=\[\]{}|\\:;"\'<>,.\/]{8,}$/'
+            ],
+        ], [
+            'fullName.regex' => 'Name should only contain letters and spaces',
+            'email.regex' => 'Email must be from gmail.com, outlook.com, or yahoo.com',
+            'password.regex' => 'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character',
         ]);
 
+        // 🚀 UUID is auto-generated in User::boot(), so we don’t touch it here
         $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
+            'fullName' => $request->fullName,
+            'email'    => $request->email,
             'password' => Hash::make($request->password),
+            'role'     => 'user',   // default role
+            'status'   => 'active', // default status
         ]);
 
         event(new Registered($user));
 
-        Auth::login($user);
-
-        return redirect(route('dashboard', absolute: false));
+        // Redirect to login page with success message
+        return redirect()->route('login')->with('success', 'Account created successfully! Please log in to continue.');
     }
 }
