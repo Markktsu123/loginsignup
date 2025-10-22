@@ -185,6 +185,9 @@ class SessionValidator {
                 
                 // Push current state back to prevent navigation
                 history.pushState(null, null, window.location.href);
+                
+                // Show warning message
+                this.showBackButtonWarning();
             }
         });
 
@@ -192,6 +195,36 @@ class SessionValidator {
         if (this.isProtectedPage()) {
             history.pushState(null, null, window.location.href);
         }
+    }
+
+    showBackButtonWarning() {
+        // Remove any existing messages
+        const existingMessage = document.getElementById('back-button-warning');
+        if (existingMessage) {
+            existingMessage.remove();
+        }
+
+        // Create and show warning message
+        const messageDiv = document.createElement('div');
+        messageDiv.id = 'back-button-warning';
+        messageDiv.className = 'fixed top-4 right-4 bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded-lg shadow-lg z-[9999] max-w-sm';
+        messageDiv.innerHTML = `
+            <div class="flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                </svg>
+                <span class="font-medium">Please use navigation buttons instead of browser back button for security.</span>
+            </div>
+        `;
+        
+        document.body.appendChild(messageDiv);
+        
+        // Auto-remove after 5 seconds
+        setTimeout(() => {
+            if (messageDiv.parentNode) {
+                messageDiv.remove();
+            }
+        }, 5000);
     }
 
     clearCache() {

@@ -13,6 +13,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'validate.session' => \App\Http\Middleware\ValidateActiveSession::class,
+            'prevent.cache' => \App\Http\Middleware\PreventBackButtonCache::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

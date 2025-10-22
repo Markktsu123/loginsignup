@@ -23,10 +23,10 @@ Route::get('/register', function () {
 // Dashboard
 Route::get('/dashboard', function () {
     return view('dashboard');
-})->middleware(['auth', 'verified', 'validate.session'])->name('dashboard');
+})->middleware(['auth', 'verified', 'validate.session', 'prevent.cache'])->name('dashboard');
 
 // Profile routes
-Route::middleware(['auth', 'validate.session'])->group(function () {
+Route::middleware(['auth', 'validate.session', 'prevent.cache'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -37,7 +37,7 @@ Route::get('/api/session/validate', [SessionController::class, 'validateSession'
 Route::post('/api/session/logout', [SessionController::class, 'forceLogout'])->name('session.logout');
 
 // Protected routes - require authentication and session validation
-Route::middleware(['auth', 'verified', 'validate.session'])->group(function () {
+Route::middleware(['auth', 'verified', 'validate.session', 'prevent.cache'])->group(function () {
     // Speech Conversion Route
     Route::get('/speech-conversion', [SpeechConversionController::class, 'index'])->name('speech.conversion');
     Route::get('/sign-language', [SignLanguageController::class, 'sign'])->name('sign.language');
